@@ -1,7 +1,16 @@
 #include "ros/ros.h"
 #include "std_msgs/Float64.h"
+#include "my_first_pkg/SetFloat64.h"
 
 double message_content;
+
+bool set_msg(my_first_pkg::SetFloat64::Request& req,
+             my_first_pkg::SetFloat64::Response& res)
+{
+  message_content = req.data;
+  res.success = true;
+  return true;
+}
 
 int main(int argc, char **argv)
 {
@@ -13,6 +22,7 @@ int main(int argc, char **argv)
         nh.getNamespace().c_str());
     return 0;
   }
+  ros::ServiceServer service = nh.advertiseService("set_num_to_pub", set_msg);
   ros::Publisher pub = nh.advertise<std_msgs::Float64>("my_num", 1);
   ros::Rate rate(5);
   while (ros::ok())
