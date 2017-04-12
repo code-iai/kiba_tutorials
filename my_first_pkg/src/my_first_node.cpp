@@ -14,10 +14,14 @@ int main(int argc, char **argv)
     return 0;
   }
   ros::Publisher pub = nh.advertise<std_msgs::Float64>("my_num", 1);
-  ros::Duration(1.0).sleep();
-  std_msgs::Float64 msg;
-  msg.data = message_content;
-  pub.publish(msg);
-  ros::spin();
+  ros::Rate rate(5);
+  while (ros::ok())
+  {
+    std_msgs::Float64 msg;
+    msg.data = message_content;
+    pub.publish(msg);
+    ros::spinOnce();
+    rate.sleep();
+  }
   return 0;
 }
