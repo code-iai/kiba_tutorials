@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="my_first_pkg" type="my_first_node" name="pos_num">
+    <param name="num_to_pub" value="3.14"/>
+  </node>
+  <node pkg="my_first_pkg" type="my_first_node" name="neg_num">
+    <param name="num_to_pub" value="-13"/>
+  </node>
+</launch>
