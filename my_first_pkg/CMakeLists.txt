@@ -3,6 +3,7 @@ project(my_first_pkg)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  std_msgs
 )
 
 catkin_package()
