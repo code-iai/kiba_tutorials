@@ -8,7 +8,7 @@
 
 namespace kiba_trajectory
 {
-  trajectory_msgs::JointTrajectoryPoint to_msg(const SingleDOFTrajectoryPoint& point)
+  inline trajectory_msgs::JointTrajectoryPoint to_msg(const SingleDOFTrajectoryPoint& point)
   {
     trajectory_msgs::JointTrajectoryPoint result;
     result.positions.push_back(point.position);
@@ -18,7 +18,7 @@ namespace kiba_trajectory
     return result;
   }
 
-  SingleDOFTrajectoryPoint from_msg(const trajectory_msgs::JointTrajectoryPoint& msg)
+  inline SingleDOFTrajectoryPoint from_msg(const trajectory_msgs::JointTrajectoryPoint& msg)
   {
     if (msg.positions.size() == 0)
       throw std::runtime_error("Trajectory point has no positions.");
@@ -35,7 +35,7 @@ namespace kiba_trajectory
     return result;
   }
 
-  kiba_msgs::CubicSpline to_msg(const SingleDOFCubicSpline& spline)
+  inline kiba_msgs::CubicSpline to_msg(const SingleDOFCubicSpline& spline)
   {
     kiba_msgs::CubicSpline result;
     result.start_time = ros::Time(spline.start_time);
@@ -47,7 +47,7 @@ namespace kiba_trajectory
     return result;
   }
 
-  SingleDOFCubicSpline from_msg(const kiba_msgs::CubicSpline& msg)
+  inline SingleDOFCubicSpline from_msg(const kiba_msgs::CubicSpline& msg)
   {
     SingleDOFCubicSpline result;
     result.start_time = msg.start_time.toSec();
