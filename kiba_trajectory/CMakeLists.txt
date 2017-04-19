@@ -14,6 +14,7 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 catkin_add_gtest(${PROJECT_NAME}-test 
   test/main.cpp 
+  test/${PROJECT_NAME}/spline.cpp
   test/${PROJECT_NAME}/conversions.cpp)
 
 if(TARGET ${PROJECT_NAME}-test)
