@@ -12,6 +12,9 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
+add_executable(trajectory_generator src/trajectory_generator.cpp)
+target_link_libraries(trajectory_generator ${catkin_LIBRARIES})
+
 catkin_add_gtest(${PROJECT_NAME}-test 
   test/main.cpp 
   test/${PROJECT_NAME}/spline.cpp
