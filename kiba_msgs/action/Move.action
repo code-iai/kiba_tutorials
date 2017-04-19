@@ -1,0 +1,8 @@
+#goal definition
+CubicSpline spline
+uint64 samples
+---
+#result definition
+trajectory_msgs/JointTrajectoryPoint[] points
+---
+#feedback definition
