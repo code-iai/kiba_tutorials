@@ -1,0 +1,6 @@
+#request
+CubicSpline spline
+uint64 num_samples
+---
+#response
+trajectory_msgs/JointTrajectoryPoint[] points

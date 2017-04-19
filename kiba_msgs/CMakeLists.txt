@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_msgs)
 
 add_message_files(FILES CubicSpline.msg)
+add_service_files(FILES GenerateTrajectory.srv)
 add_action_files(FILES Move.action)
 generate_messages(DEPENDENCIES actionlib_msgs trajectory_msgs)
 
