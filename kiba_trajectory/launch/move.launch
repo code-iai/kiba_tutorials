@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="kiba_trajectory" type="trajectory_generator" 
+        name="trajectory_generator" output="screen" />
+
+  <node pkg="kiba_trajectory" type="trajectory_executive" 
+        name="trajectory_executive" output="screen" >
+    <remap from="~generate_trajectory" to="/trajectory_generator/generate_trajectory" />
+  </node>
+</launch>
