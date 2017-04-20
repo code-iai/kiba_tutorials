@@ -4,7 +4,7 @@ project(kiba_trajectory)
 add_definitions(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp kiba_msgs)
+  roscpp actionlib kiba_msgs)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -14,6 +14,9 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable(trajectory_generator src/trajectory_generator.cpp)
 target_link_libraries(trajectory_generator ${catkin_LIBRARIES})
+
+add_executable(trajectory_executive src/trajectory_executive.cpp)
+target_link_libraries(trajectory_executive ${catkin_LIBRARIES})
 
 catkin_add_gtest(${PROJECT_NAME}-test 
   test/main.cpp 
