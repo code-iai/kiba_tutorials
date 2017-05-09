@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<robot name="myfirst">
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+
+  <material name="red">
+    <color rgba="0.8 0 0 1"/>
+  </material>
+  
+  <material name="white">
+  	<color rgba="1 1 1 1"/>
+  </material>
+
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.6" radius="0.2"/>
+      </geometry>
+     <material name="blue"/>
+    </visual>
+  </link>
+
+  <link name="head">
+    <visual>
+      <geometry>
+        <sphere radius="0.2"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link> 
+  
+  <link name="left_eye">
+     <visual>
+       <geometry>
+          <sphere radius="0.02"/>
+       </geometry>
+        <material name="white"/>
+     </visual>
+   </link>
+  
+   <link name="right_eye">
+     <visual>
+       <geometry>
+          <sphere radius="0.02"/>
+       </geometry>
+        <material name="white"/>
+     </visual>
+   </link>
+
+<joint name="head_to_right_eye" type="fixed">
+  <parent link="head"/>
+  <child link="right_eye"/>
+  <origin xyz="0.05 0.2 0.05"/>
+</joint>
+    
+<joint name="head_to_left_eye" type="fixed">
+  <parent link="head"/>
+  <child link="left_eye"/>
+  <origin xyz="-0.05 0.2 0.05"/>
+</joint>
+        
+<joint name="head_to_base" type="continuous">
+  <parent link="base_link"/>
+  <child link="head"/>
+  <axis xyz="0 0 1"/>
+  <origin xyz="0 0 0.3"/>
+</joint>
+
+</robot>
