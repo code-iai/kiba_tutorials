@@ -43,3 +43,9 @@ target_link_libraries(image_subscriber_example ${catkin_LIBRARIES})
 
 add_executable(compressed_image_subscriber_example src/compressed_image_subscriber_example.cpp)
 target_link_libraries(compressed_image_subscriber_example ${catkin_LIBRARIES})
+
+add_executable(simple_pc_subscriber src/simple_pc_subscriber.cpp)
+target_link_libraries(simple_pc_subscriber ${catkin_LIBRARIES})
+
+add_executable(simple_pc_publisher src/simple_pc_publisher.cpp)
+target_link_libraries(simple_pc_publisher ${catkin_LIBRARIES})
