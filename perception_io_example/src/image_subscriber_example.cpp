@@ -48,7 +48,7 @@ public:
 
     // Draw an example circle on the video stream
     cv::circle(cv_ptr->image, 
-	       cv::Point(cv_ptr->image.width/2, cv_ptr->image.height/2), 
+	       cv::Point(cv_ptr->image.cols/2, cv_ptr->image.rows/2), 
 	       10, 
 	       CV_RGB(255,0,0));
 
