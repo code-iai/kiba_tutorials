@@ -40,3 +40,6 @@ include_directories(
 
 add_executable(image_subscriber_example src/image_subscriber_example.cpp)
 target_link_libraries(image_subscriber_example ${catkin_LIBRARIES})
+
+add_executable(compressed_image_subscriber_example src/compressed_image_subscriber_example.cpp)
+target_link_libraries(compressed_image_subscriber_example ${catkin_LIBRARIES})
