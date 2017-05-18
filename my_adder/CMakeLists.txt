@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs)
 catkin_package()
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -14,3 +15,12 @@ target_link_libraries(my_adder ${catkin_LIBRARIES})
 add_dependencies(my_adder 
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS})
+
+catkin_add_gtest(${PROJECT_NAME}-test 
+  test/main.cpp 
+  test/${PROJECT_NAME}/my_adder.cpp)
+
+if(TARGET ${PROJECT_NAME}-test)
+  target_link_libraries(${PROJECT_NAME}-test 
+    ${catkin_LIBRARIES})
+endif()
