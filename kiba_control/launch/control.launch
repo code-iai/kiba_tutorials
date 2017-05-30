@@ -1,0 +1,19 @@
+<launch>
+  <include file="$(find ur_description)/launch/ur5_upload.launch" />
+
+  <rosparam command="load" file="$(find kiba_control)/config/control.yaml" />
+
+  <remap from="/joint_trajectory_controller/follow_joint_trajectory"
+         to="/follow_joint_trajectory" />
+
+  <node pkg="kiba_control" type="sim_hw_main" name="robot"
+        output="screen" />
+
+  <node pkg="controller_manager" type="spawner" name="spawner" output="screen"
+        args="joint_state_controller joint_trajectory_controller --shutdown-timeout 0.5" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher"
+        name="robot_state_publisher" />
+
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find kiba_control)/config/ur5.rviz" />
+</launch>
