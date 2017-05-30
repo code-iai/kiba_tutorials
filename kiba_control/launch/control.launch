@@ -15,5 +15,11 @@
   <node pkg="robot_state_publisher" type="robot_state_publisher"
         name="robot_state_publisher" />
 
+  <node pkg="kiba_control" type="interactive_marker_bridge" name="interactive_marker_bridge" >
+    <param name="marker_name" value="ee_goal" />
+    <param name="marker_scale" value="0.2" />
+    <param name="frame_id" value="tool0" />
+  </node>
+
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find kiba_control)/config/ur5.rviz" />
 </launch>

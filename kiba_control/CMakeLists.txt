@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(kiba_control)
 
+add_definitions(-std=c++11)
+
 find_package(catkin REQUIRED COMPONENTS
-  roscpp ros_control_boilerplate)
+  roscpp ros_control_boilerplate interactive_markers geometry_msgs)
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp ros_control_boilerplate)
+  CATKIN_DEPENDS roscpp ros_control_boilerplate interactive_markers geometry_msgs)
 
 include_directories(
   include
@@ -14,3 +16,6 @@ include_directories(
 
 add_executable(sim_hw_main src/sim_hw_main.cpp)
 target_link_libraries(sim_hw_main ${catkin_LIBRARIES})
+
+add_executable(interactive_marker_bridge src/interactive_marker_bridge.cpp)
+target_link_libraries(interactive_marker_bridge ${catkin_LIBRARIES})
