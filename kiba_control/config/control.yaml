@@ -16,3 +16,10 @@ joint_state_controller:
 joint_trajectory_controller:
   type: position_controllers/JointTrajectoryController  
   joints: *joints
+init_config:
+  shoulder_pan_joint: -1.88
+  shoulder_lift_joint: -1.56
+  elbow_joint: -1.71
+  wrist_1_joint: -1.44
+  wrist_2_joint: 1.61
+  wrist_3_joint: -2.59
