@@ -4,11 +4,11 @@ project(kiba_control)
 add_definitions(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp ros_control_boilerplate interactive_markers geometry_msgs sensor_msgs control_msgs kdl_parser)
+  roscpp ros_control_boilerplate interactive_markers geometry_msgs sensor_msgs control_msgs kdl_parser tf2_ros tf2_geometry_msgs)
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp ros_control_boilerplate interactive_markers geometry_msgs sensor_msgs control_msgs kdl_parser)
+  CATKIN_DEPENDS roscpp ros_control_boilerplate interactive_markers geometry_msgs sensor_msgs control_msgs kdl_parser tf2_ros tf2_geometry_msgs)
 
 include_directories(
   include
