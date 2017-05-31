@@ -3,25 +3,17 @@
 #include <geometry_msgs/PointStamped.h>
 #include <memory>
 #include <boost/bind.hpp>
+#include <kiba_control/utils.hpp>
 
-template<class T>
-inline T readParam(const ros::NodeHandle& nh, const std::string& name)
-{
-  T param;
-  if(!nh.getParam(name, param))
-    throw std::runtime_error("Could not find parameter '" + name +
-        "' in namespace '" + nh.getNamespace() + "'.");
-  return param;
-}
 
 class InteractiveMarkerBridge
 {
   public:
     InteractiveMarkerBridge(const ros::NodeHandle& nh) : 
       nh_( nh ), pub_( nh_.advertise<geometry_msgs::PointStamped>("goal", 1) ),
-      marker_name_( readParam<std::string>(nh_, "marker_name") ),
-      frame_id_( readParam<std::string>(nh_, "frame_id") ),
-      marker_scale_( readParam<double>(nh_, "marker_scale") )
+      marker_name_( kiba_control::readParam<std::string>(nh_, "marker_name") ),
+      frame_id_( kiba_control::readParam<std::string>(nh_, "frame_id") ),
+      marker_scale_( kiba_control::readParam<double>(nh_, "marker_scale") )
     {
     }
 

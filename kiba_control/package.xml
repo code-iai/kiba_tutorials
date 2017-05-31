@@ -14,11 +14,17 @@
   <build_depend>roscpp</build_depend>
   <build_depend>ros_control_boilerplate</build_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>control_msgs</build_depend>
   <build_depend>interactive_markers</build_depend>
+  <build_depend>kdl_parser</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>ros_control_boilerplate</run_depend>
   <run_depend>geometry_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>control_msgs</run_depend>
   <run_depend>interactive_markers</run_depend>
+  <run_depend>kdl_parser</run_depend>
 
   <run_depend>rviz</run_depend>
   <run_depend>robot_state_publisher</run_depend>
