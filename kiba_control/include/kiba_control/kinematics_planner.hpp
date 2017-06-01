@@ -5,7 +5,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <kiba_control/utils.hpp>
 #include <sensor_msgs/JointState.h>
-#include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <kdl/chainiksolverpos_nr_jl.hpp>
 #include <kdl/chainiksolvervel_wdls.hpp>
@@ -14,6 +14,7 @@
 #include <kdl/frames_io.hpp>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <kdl_conversions/kdl_msg.h>
 
 namespace kiba_control
 {
@@ -58,9 +59,8 @@ namespace kiba_control
           current_joint_state_.insert(std::pair<std::string, double>(msg->name[i], msg->position[i]));
       }
 
-      void goal_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
+      void goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
       {
-        ROS_INFO("Received a new goal.");
         try
         {
           action_client_.cancelAllGoals();
@@ -73,13 +73,13 @@ namespace kiba_control
       }
 
       control_msgs::FollowJointTrajectoryGoal calc_trajectory_goal(
-          const geometry_msgs::PointStamped& goal_point) const
+          const geometry_msgs::PoseStamped& goal_pose) const
       {
         control_msgs::FollowJointTrajectoryGoal result;
-        result.trajectory.header = goal_point.header;
+        result.trajectory.header = goal_pose.header;
         result.trajectory.joint_names = get_joint_names();
         result.trajectory.points.push_back(calc_start_trajectory_point());
-        result.trajectory.points.push_back(calc_end_trajectory_point(goal_point));
+        result.trajectory.points.push_back(calc_end_trajectory_point(goal_pose));
         return result;
       }
 
@@ -95,7 +95,7 @@ namespace kiba_control
       }
 
       trajectory_msgs::JointTrajectoryPoint calc_end_trajectory_point(
-          const geometry_msgs::PointStamped& goal_point) const
+          const geometry_msgs::PoseStamped& goal_pose) const
       {
         trajectory_msgs::JointTrajectoryPoint result;
         result.time_from_start = ros::Duration(2.0);
@@ -114,37 +114,20 @@ namespace kiba_control
           q_in(i) = current_joint_state_.find(kdl_joint_names[i])->second;
 
         // transform out goal point into the base of the robot using TF
-        geometry_msgs::PointStamped transformed_goal_point =
-          tf_buffer_.transform<geometry_msgs::PointStamped>(goal_point, root_frame_name_);
-        KDL::Vector goal_vector(transformed_goal_point.point.x, 
-            transformed_goal_point.point.y, transformed_goal_point.point.z);
+        geometry_msgs::PoseStamped transformed_goal_pose =
+          tf_buffer_.transform<geometry_msgs::PoseStamped>(goal_pose, root_frame_name_);
 
-        // stuff the goal point into KDL::Vector because our solver needs it like this
-        KDL::Frame goal_frame(goal_vector);
+        // convert goal pose into KDL::Frame because the solver needs it like that
+        KDL::Frame goal_frame;
+        tf::poseMsgToKDL(transformed_goal_pose.pose, goal_frame);
 
-        // FIXME: remove these debug outputs
-        using namespace KDL;
-        std::cout << q_in << std::endl;
-        std::cout << goal_frame << std::endl;
-        KDL::Frame p;
-        fk_solver_pos.JntToCart(q_in, p);
-        std::cout << p << std::endl;
-        KDL::Twist dummy_twist(KDL::Vector(0, 0, 0.05), KDL::Vector(0,0,0));
-        KDL::JntArray q_out = q_in;
-        if (ik_solver_vel.CartToJnt(q_in, dummy_twist, q_out) < 0)
-          throw std::runtime_error("IK-vel solver failed to find solution.");
-        // FIXME: figure out why this yields Batman
-        std::cout << q_out << std::endl;
-
-        goal_frame = p;
-        goal_frame.p = goal_vector;
 
         // solve for the actual position-resolved IK problem
         KDL::JntArray q_goal = q_in;
         if (ik_solver_pos.CartToJnt(q_in , goal_frame, q_goal) < 0)
           throw std::runtime_error("IK Solver did not find a solution.");
 
-        // convert the computed desired joint state into the required order, and fill the message
+        // align the computed desired joint state into the required order using a std::map, and fill the message
         std::map<std::string, double> desired_joint_state;
         for (size_t i=0; i<kdl_joint_names.size(); ++i)
           desired_joint_state.insert(std::pair<std::string, double>(kdl_joint_names[i], q_goal(i)));
@@ -174,13 +157,12 @@ namespace kiba_control
         return result;
       }
 
-
       KDL::JntArray get_lower_limits() const
       {
         KDL::JntArray result(chain_.getNrOfJoints());
         for (size_t i=0; i<chain_.getNrOfSegments(); ++i)
-          if (is_urdf_joint_with_limits(robot_model_.getJoint(chain_.getSegment(i).getJoint().getName())))
-            result(i) = robot_model_.getJoint(chain_.getSegment(i).getJoint().getName())->limits->lower;
+          if (is_urdf_joint_with_limits(get_urdf_joint_with_kdl_index(i)))
+            result(i) = get_urdf_joint_with_kdl_index(i)->limits->upper;
           else
             result(i) = -10e10; // something with a big magnitude, FIXME: make this a constant with a name
 
@@ -191,25 +173,31 @@ namespace kiba_control
       {
         KDL::JntArray result(chain_.getNrOfJoints());
         for (size_t i=0; i<chain_.getNrOfSegments(); ++i)
-          if (is_urdf_joint_with_limits(robot_model_.getJoint(chain_.getSegment(i).getJoint().getName())))
-            result(i) = robot_model_.getJoint(chain_.getSegment(i).getJoint().getName())->limits->upper;
+           if (is_urdf_joint_with_limits(get_urdf_joint_with_kdl_index(i)))
+            result(i) = get_urdf_joint_with_kdl_index(i)->limits->upper;
           else
             result(i) = 10e10; // something with a big magnitude, FIXME: make this a constant with a name
 
         return result;
       }
 
-      bool is_urdf_robot_joint(const urdf::JointConstSharedPtr& joint) const
-      {
-        return joint->type == urdf::Joint::REVOLUTE ||
-            joint->type == urdf::Joint::CONTINUOUS ||
-            joint->type == urdf::Joint::PRISMATIC;
-      }
-
       bool is_urdf_joint_with_limits(const urdf::JointConstSharedPtr& joint) const
       {
         return joint->type == urdf::Joint::REVOLUTE ||
             joint->type == urdf::Joint::PRISMATIC;
+      }
+
+      const KDL::Joint& get_kdl_joint(size_t i) const
+      {
+        if (chain_.getNrOfSegments() < i)
+          throw std::runtime_error("Asked to retrieve joint from chain with invalid index.");
+
+        return chain_.getSegment(i).getJoint();
+      }
+
+      const urdf::JointConstSharedPtr& get_urdf_joint_with_kdl_index(size_t i) const
+      {
+        return robot_model_.getJoint(get_kdl_joint(i).getName());
       }
   };
 }

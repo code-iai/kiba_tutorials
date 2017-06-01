@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <interactive_markers/interactive_marker_server.h>
-#include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <memory>
 #include <boost/bind.hpp>
 #include <kiba_control/utils.hpp>
@@ -10,7 +10,7 @@ class InteractiveMarkerBridge
 {
   public:
     InteractiveMarkerBridge(const ros::NodeHandle& nh) : 
-      nh_( nh ), pub_( nh_.advertise<geometry_msgs::PointStamped>("goal", 1) ),
+      nh_( nh ), pub_( nh_.advertise<geometry_msgs::PoseStamped>("goal", 1) ),
       marker_name_( kiba_control::readParam<std::string>(nh_, "marker_name") ),
       frame_id_( kiba_control::readParam<std::string>(nh_, "frame_id") ),
       marker_scale_( kiba_control::readParam<double>(nh_, "marker_scale") )
@@ -22,7 +22,7 @@ class InteractiveMarkerBridge
       server_ = std::make_shared<interactive_markers::InteractiveMarkerServer>
           (nh_.getNamespace(), "", false);
 
-      visualization_msgs::InteractiveMarker marker = create_3dof_marker();
+      visualization_msgs::InteractiveMarker marker = create_6dof_marker();
       server_->insert(marker);
       server_->setCallback(marker.name,
           boost::bind(&InteractiveMarkerBridge::feedback_callback, this, _1));
@@ -51,9 +51,9 @@ class InteractiveMarkerBridge
 
         if(feedback->marker_name.compare(marker_name_) == 0)
         {
-          geometry_msgs::PointStamped goal;
+          geometry_msgs::PoseStamped goal;
           goal.header = feedback->header;
-          goal.point = feedback->pose.position;
+          goal.pose = feedback->pose;
           pub_.publish(goal);
         }
         else
@@ -64,7 +64,7 @@ class InteractiveMarkerBridge
       }
     }
 
-    visualization_msgs::InteractiveMarker create_3dof_marker()
+    visualization_msgs::InteractiveMarker create_6dof_marker()
     {
       visualization_msgs::InteractiveMarker result;
       result.name = marker_name_;
@@ -81,21 +81,30 @@ class InteractiveMarkerBridge
       control.name = "move_x";
       control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
       result.controls.push_back(control);
+      control.name = "rotate_x";
+      control.interaction_mode = visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS;
+      result.controls.push_back(control);
 
       control.orientation.w = 1;
       control.orientation.x = 0;
       control.orientation.y = 1;
       control.orientation.z = 0;
-      control.name = "move_z";
+      control.name = "move_y";
       control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
+      result.controls.push_back(control);
+      control.name = "rotate_y";
+      control.interaction_mode = visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS;
       result.controls.push_back(control);
 
       control.orientation.w = 1;
       control.orientation.x = 0;
       control.orientation.y = 0;
       control.orientation.z = 1;
-      control.name = "move_y";
+      control.name = "move_z";
       control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
+      result.controls.push_back(control);
+      control.name = "rotate_z";
+      control.interaction_mode = visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS;
       result.controls.push_back(control);
 
       return result;
