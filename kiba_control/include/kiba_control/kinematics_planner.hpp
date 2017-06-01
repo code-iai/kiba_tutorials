@@ -103,7 +103,6 @@ namespace kiba_control
         // set up all the KDL solvers that we need
         KDL::ChainFkSolverPos_recursive fk_solver_pos(chain_);
         KDL::ChainIkSolverVel_wdls ik_solver_vel(chain_);
-        Eigen::MatrixXd ts_weights = Eigen::MatrixXd::Identity(6,6);
         KDL::ChainIkSolverPos_NR_JL ik_solver_pos(chain_, get_lower_limits(), get_upper_limits(), 
             fk_solver_pos, ik_solver_vel);
 
@@ -120,7 +119,6 @@ namespace kiba_control
         // convert goal pose into KDL::Frame because the solver needs it like that
         KDL::Frame goal_frame;
         tf::poseMsgToKDL(transformed_goal_pose.pose, goal_frame);
-
 
         // solve for the actual position-resolved IK problem
         KDL::JntArray q_goal = q_in;
@@ -161,8 +159,8 @@ namespace kiba_control
       {
         KDL::JntArray result(chain_.getNrOfJoints());
         for (size_t i=0; i<chain_.getNrOfSegments(); ++i)
-          if (is_urdf_joint_with_limits(get_urdf_joint_with_kdl_index(i)))
-            result(i) = get_urdf_joint_with_kdl_index(i)->limits->upper;
+          if (is_urdf_joint_with_limits(robot_model_.getJoint(chain_.getSegment(i).getJoint().getName())))
+              result(i) = robot_model_.getJoint(chain_.getSegment(i).getJoint().getName())->limits->lower;
           else
             result(i) = -10e10; // something with a big magnitude, FIXME: make this a constant with a name
 
@@ -173,8 +171,8 @@ namespace kiba_control
       {
         KDL::JntArray result(chain_.getNrOfJoints());
         for (size_t i=0; i<chain_.getNrOfSegments(); ++i)
-           if (is_urdf_joint_with_limits(get_urdf_joint_with_kdl_index(i)))
-            result(i) = get_urdf_joint_with_kdl_index(i)->limits->upper;
+           if (is_urdf_joint_with_limits(robot_model_.getJoint(chain_.getSegment(i).getJoint().getName())))
+              result(i) = robot_model_.getJoint(chain_.getSegment(i).getJoint().getName())->limits->upper;
           else
             result(i) = 10e10; // something with a big magnitude, FIXME: make this a constant with a name
 
@@ -185,19 +183,6 @@ namespace kiba_control
       {
         return joint->type == urdf::Joint::REVOLUTE ||
             joint->type == urdf::Joint::PRISMATIC;
-      }
-
-      const KDL::Joint& get_kdl_joint(size_t i) const
-      {
-        if (chain_.getNrOfSegments() < i)
-          throw std::runtime_error("Asked to retrieve joint from chain with invalid index.");
-
-        return chain_.getSegment(i).getJoint();
-      }
-
-      const urdf::JointConstSharedPtr& get_urdf_joint_with_kdl_index(size_t i) const
-      {
-        return robot_model_.getJoint(get_kdl_joint(i).getName());
       }
   };
 }
