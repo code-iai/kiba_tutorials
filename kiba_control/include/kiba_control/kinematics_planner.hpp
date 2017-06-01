@@ -86,7 +86,7 @@ namespace kiba_control
       trajectory_msgs::JointTrajectoryPoint calc_start_trajectory_point() const
       {
         trajectory_msgs::JointTrajectoryPoint result;
-        result.time_from_start = ros::Duration(1);
+        result.time_from_start = ros::Duration(0.1);
         for (std::map<std::string, double>::const_iterator it=current_joint_state_.begin();
              it!=current_joint_state_.end(); ++it)
           result.positions.push_back(it->second);
@@ -98,37 +98,29 @@ namespace kiba_control
           const geometry_msgs::PointStamped& goal_point) const
       {
         trajectory_msgs::JointTrajectoryPoint result;
-        result.time_from_start = ros::Duration(5.0);
+        result.time_from_start = ros::Duration(2.0);
        
         // set up all the KDL solvers that we need
         KDL::ChainFkSolverPos_recursive fk_solver_pos(chain_);
         KDL::ChainIkSolverVel_wdls ik_solver_vel(chain_);
         Eigen::MatrixXd ts_weights = Eigen::MatrixXd::Identity(6,6);
-        // tell the solver that we are not interested in giving rotation commands
-        // by setting the corresponding task space weights to zero
-        ts_weights(3,3) = 0;
-        ts_weights(4,4) = 0;
-        ts_weights(5,5) = 0;
-        // FIXME: remove this printout
-        using namespace Eigen;
-        std::cout << ts_weights << std::endl;
-        ik_solver_vel.setWeightTS(ts_weights);
         KDL::ChainIkSolverPos_NR_JL ik_solver_pos(chain_, get_lower_limits(), get_upper_limits(), 
-            fk_solver_pos, ik_solver_vel, 200, 0.1);
-
-        // transform out goal point into the base of the robot using TF
-        geometry_msgs::PointStamped transformed_goal_point =
-          tf_buffer_.transform<geometry_msgs::PointStamped>(goal_point, root_frame_name_);
-        KDL::Vector goal_vector(transformed_goal_point.point.x, 
-            transformed_goal_point.point.y, transformed_goal_point.point.z);
-        // stuff the goal point into KDL::Vector because our solver needs it like this
-        KDL::Frame goal_frame(goal_vector);
+            fk_solver_pos, ik_solver_vel);
 
         // convert the current joint state into a KDL-compatible order and format
         std::vector<std::string> kdl_joint_names = get_kdl_joint_names();
         KDL::JntArray q_in(current_joint_state_.size());
         for (size_t i=0; i<current_joint_state_.size(); ++i)
           q_in(i) = current_joint_state_.find(kdl_joint_names[i])->second;
+
+        // transform out goal point into the base of the robot using TF
+        geometry_msgs::PointStamped transformed_goal_point =
+          tf_buffer_.transform<geometry_msgs::PointStamped>(goal_point, root_frame_name_);
+        KDL::Vector goal_vector(transformed_goal_point.point.x, 
+            transformed_goal_point.point.y, transformed_goal_point.point.z);
+
+        // stuff the goal point into KDL::Vector because our solver needs it like this
+        KDL::Frame goal_frame(goal_vector);
 
         // FIXME: remove these debug outputs
         using namespace KDL;
@@ -143,6 +135,9 @@ namespace kiba_control
           throw std::runtime_error("IK-vel solver failed to find solution.");
         // FIXME: figure out why this yields Batman
         std::cout << q_out << std::endl;
+
+        goal_frame = p;
+        goal_frame.p = goal_vector;
 
         // solve for the actual position-resolved IK problem
         KDL::JntArray q_goal = q_in;
