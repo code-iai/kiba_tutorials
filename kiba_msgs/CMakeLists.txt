@@ -4,12 +4,13 @@ project(kiba_msgs)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   actionlib_msgs
-  trajectory_msgs)
+  trajectory_msgs
+  sensor_msgs)
 
 add_message_files(FILES CubicSpline.msg)
 add_service_files(FILES GenerateTrajectory.srv)
-add_action_files(FILES Move.action)
-generate_messages(DEPENDENCIES actionlib_msgs trajectory_msgs)
+add_action_files(FILES Move.action MoveAndGetFk.action)
+generate_messages(DEPENDENCIES actionlib_msgs trajectory_msgs sensor_msgs)
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime actionlib_msgs trajectory_msgs)
+  CATKIN_DEPENDS message_runtime actionlib_msgs trajectory_msgs sensor_msgs)

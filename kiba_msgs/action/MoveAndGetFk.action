@@ -1,0 +1,10 @@
+# goal
+trajectory_msgs/JointTrajectoryPoint configuration
+string[] joint_names
+---
+# result
+geometry_msgs/TransformStamped kdl_fk
+geometry_msgs/TransformStamped tf_fk
+sensor_msgs/JointState joint_state
+---
+# feedback
