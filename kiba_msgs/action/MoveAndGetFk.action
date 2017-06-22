@@ -1,6 +1,8 @@
 # goal
 trajectory_msgs/JointTrajectoryPoint configuration
 string[] joint_names
+string frame_id
+string child_frame_id
 ---
 # result
 geometry_msgs/TransformStamped kdl_fk
