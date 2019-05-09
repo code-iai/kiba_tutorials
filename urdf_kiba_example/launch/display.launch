@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="model" default="$(find urdf_kiba_example)/urdf/myfirst.urdf"/>
-  <arg name="gui" default="False" />
+  <arg name="gui" default="True" />
   <arg name="rvizconfig" default="$(find urdf_kiba_example)/rviz/urdf.rviz" />
 
   <param name="robot_description" textfile="$(arg model)" />
