@@ -1,4 +1,6 @@
 <launch>
+  <arg name="py_planner" default="true" />
+
   <include file="$(find ur_description)/launch/ur5_upload.launch" >
     <arg name="limited" value="true" />
   </include>
@@ -23,12 +25,22 @@
     <param name="frame_id" value="tool0" />
   </node>
 
-  <node pkg="kiba_control" type="kinematics_planner" name="kinematics_planner" output="screen">
+  <node pkg="kiba_control" type="kinematics_planner" name="kinematics_planner"
+        output="screen" unless="$(arg py_planner)" >
     <param name="root_frame_name" value="base_link" />
     <param name="tip_frame_name" value="tool0" />
     <remap from="~joint_states" to="/joint_states" />
     <remap from="~goal" to="/interactive_marker_bridge/goal" />
   </node>
 
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find kiba_control)/config/ur5.rviz" />
+  <node pkg="kiba_control" type="kinematics_planner.py" name="kinematics_planner"
+        output="screen" if="$(arg py_planner)" >
+    <param name="root_frame_name" value="base_link" />
+    <param name="tip_frame_name" value="tool0" />
+    <remap from="~joint_states" to="/joint_states" />
+    <remap from="~goal" to="/interactive_marker_bridge/goal" />
+  </node>
+
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find kiba_control)/config/ur5.rviz"
+        required="true" />
 </launch>
