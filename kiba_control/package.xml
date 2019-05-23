@@ -40,6 +40,6 @@
   <!-- python-specific dependencies -->
   <run_depend>rospy</run_depend>
   <run_depend>kdl_parser_py</run_depend>
-  <run_depend>urdf_parser_py</run_depend>
+  <run_depend>urdfdom_py</run_depend>
 
 </package>
