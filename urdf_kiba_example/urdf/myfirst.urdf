@@ -49,6 +49,8 @@
      </visual>
    </link>
 
+   <link name="head_intermediate" />
+
 <joint name="head_to_right_eye" type="fixed">
   <parent link="head"/>
   <child link="right_eye"/>
@@ -61,11 +63,18 @@
   <origin xyz="-0.05 0.2 0.05"/>
 </joint>
         
-<joint name="head_to_base" type="continuous">
+<joint name="head_to_base1" type="continuous">
   <parent link="base_link"/>
-  <child link="head"/>
+  <child link="head_intermediate"/>
   <axis xyz="0 0 1"/>
   <origin xyz="0 0 0.3"/>
 </joint>
+<joint name="head_to_base2" type="revolute">
+  <parent link="head_intermediate"/>
+  <child link="head"/>
+  <axis xyz="1 0 0"/>
+  <limit effort="30" velocity="1.0" lower="0.0" upper="0.7" />
+</joint>
+
 
 </robot>
